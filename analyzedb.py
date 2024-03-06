@@ -41,6 +41,4 @@ if __name__ == "__main__":
 
     if count is not None:
         print(f"Total unique users in the database: {count}")
-    
 
-    
