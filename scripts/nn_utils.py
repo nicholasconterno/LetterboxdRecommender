@@ -104,24 +104,40 @@ def get_recommendations(user_vector, movie_details_df, model, movie_name_to_real
     X_pred = np.hstack([user_features, movie_details_df.drop(['movie_name', 'real_movie_name', 'director', 'genres', 'actors'], axis=1).values])
     y_pred = model.predict(X_pred)
 
+    
+
     # Get the top_k movies with the highest predicted ratings
-    top_indices = np.argsort(-y_pred.flatten())[:50]
+    top_indices = np.argsort(-y_pred.flatten())[:30]
     top_movies = movie_details_df.iloc[top_indices]['movie_name'].values
     top_ratings = y_pred.flatten()[top_indices]
-
-    # drop movies (and corresponding rating) the user has already seen 
+    # remove movies with genre 'Documentary' or 'Short' from the recommendations
+    
+    top_ratings = [top_ratings[i] for i in range(len(top_movies)) if 'Documentary' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0] and 'Short' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0]]
+    # remove movies with genre 'TV Movie' or 'Music' from the recommendations
+    top_movies = [top_movies[i] for i in range(len(top_movies)) if 'Documentary' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0] and 'Short' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0]]
+    
+    # remove movies with genre 'TV Movie' or 'Music' from the recommendations
+    top_ratings = [top_ratings[i] for i in range(len(top_movies)) if 'TV Movie' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0] and 'Music' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0]]
+    top_movies = [top_movies[i] for i in range(len(top_movies)) if 'TV Movie' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0] and 'Music' not in movie_details_df[movie_details_df['movie_name'] == top_movies[i]]['genres'].values[0]]
 
     top_ratings = [top_ratings[i] for i in range(len(top_movies)) if top_movies[i] not in filmsSeen]
     top_movies = [top_movies[i] for i in range(len(top_movies)) if top_movies[i] not in filmsSeen]
 
+    #remove cider house rules
+    top_ratings = [top_ratings[i] for i in range(len(top_movies)) if top_movies[i] != 'the-cider-house-rules']
+    top_movies = [top_movies[i] for i in range(len(top_movies)) if top_movies[i] != 'the-cider-house-rules']
     # load the movie_name_to_real_movie_name dictionary
 
     top_movies_real_names = [movie_name_to_real_movie_name[movie] for movie in top_movies]
-
     # get highest rating
     highest_rating = max(top_ratings)
     if highest_rating>=10:
-        top_ratings/=((highest_rating/10)+.01)
+        # if the highest rating is 10, divide all ratings by 2
+        top_ratings = [rating/((highest_rating/10)+.01) for rating in top_ratings]
+    
+    top_ratings = [round(rating, 2) for rating in top_ratings]
+    # divide all ratings by 2
+    top_ratings = [rating/2 for rating in top_ratings]
 
     # print out the top movies and ratings side by side
     for i in range(len(top_movies)):
@@ -141,5 +157,5 @@ def main(username):
 
 if __name__ == "__main__":
     t = time.time()
-    main('nconterno')
+    main('marcoslammel')
     print(time.time()-t)
