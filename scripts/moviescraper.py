@@ -11,6 +11,8 @@ api_key = "c07c9d067d630faff2eed10b673199a3"
 
 @backoff.on_exception(backoff.expo, (ConnectionError, Timeout), max_tries=25)
 def get_film_info(title, year=None):
+    '''
+    Get film info from The Movie Database API'''
 
     # search_response = requests.get(search_url, headers=headers)
     original_title = title
