@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Movie Recommendations</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
+   <style>
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
@@ -19,6 +20,25 @@
             text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        header h1 {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+        }
+        /* Styling for icons */
+        .header-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+        }
+        .header-icon.left {
+            left: 20px;
+        }
+        .header-icon.right {
+            right: 20px;
+        }
+
         form {
             margin: 20px auto;
             width: 90%;
@@ -142,6 +162,7 @@
 </head>
 <body>
     <header>
+        
         <h1>Flick Finder</h1>
     </header>
     <form action="/" method="post" id="recommendForm">
