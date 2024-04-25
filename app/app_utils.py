@@ -65,10 +65,14 @@ def scrape_letterboxd_films(username, start_page=1, max_pages=None):
     return films
 
 def get_films(username):
+    '''
+    Get the films watched by a Letterboxd user'''
     films = scrape_letterboxd_films(username, start_page=1)
     return films
 
 def load_models():
+    '''
+    Load the models and data needed for the recommendation system'''
     # load the svd model
     with open('data/svd.pkl', 'rb') as f:
         svd = pickle.load(f)
@@ -86,6 +90,8 @@ def load_models():
     return svd, movie_details_df, model, movie_name_to_real_movie_name, svd_model
 
 def get_user_vector(films, movie_details_df, svd, svd_model):
+    '''
+    Get the user vector for the user'''
     # create user_vector for the user
     user_vector = [0] * len(movie_details_df)
     filmsSeen = []
@@ -104,6 +110,8 @@ def get_user_vector(films, movie_details_df, svd, svd_model):
     user_vector = user_vector_t
     return user_vector, filmsSeen, user_vector_for_svd
 def get_recommendations(user_vector, movie_details_df, model, movie_name_to_real_movie_name, filmsSeen):
+    '''
+    Get movie recommendations for the user'''
     # merge the user_vector with the movie_details_df
     df_user_vector = pd.DataFrame(user_vector, columns=[f'svd_{i}' for i in range(user_vector.shape[1])])
     # print('df_user_vector made')
@@ -154,7 +162,7 @@ def get_recommendations(user_vector, movie_details_df, model, movie_name_to_real
     
     # divide all ratings by 2
     top_ratings = [rating/2 for rating in top_ratings]
-    top_ratings = [round(rating, 2) for rating in top_ratings]
+    top_ratings = [round(rating, 1) for rating in top_ratings]
 
     # print out the top movies and ratings side by side
     # for i in range(len(top_movies)):
@@ -162,6 +170,8 @@ def get_recommendations(user_vector, movie_details_df, model, movie_name_to_real
     return top_movies_real_names[0:10], top_ratings[0:10], top_movies[0:10]
 
 def load_data_for_SVD():
+    '''
+    Load the data needed for the SVD model'''
     # load with npz the ratings matrix
     # data/ratings_matrix.npz
     ratings_matrix = load_npz('data/ratings_matrix.npz')
@@ -174,6 +184,8 @@ def load_data_for_SVD():
     return ratings_matrix, movie_index, matrix_reduced, movie_details_df
 
 def predict_movies_for_new_user(new_user_ratings,svd_model, movie_index,matrix_reduced,ratings_matrix,movie_details_df, top_k=12):
+    '''
+    Predict movies for a new user based on the ratings given by the user'''
     # Create a new user ratings vector with the same columns as the original ratings matrix
     # load in movie_name_to_real_movie_name
     with open('data/movie_name_to_real_movie_name.pkl', 'rb') as f:
@@ -246,6 +258,8 @@ def predict_movies_for_new_user(new_user_ratings,svd_model, movie_index,matrix_r
 
 
 def main(username):
+    '''
+    Main function to get recommendations for a user'''
     # load the models
     t = time.time()
     svd, movie_details_df, model, movie_name_to_real_movie_name, svd_model = load_models()
@@ -271,8 +285,8 @@ def main(username):
     # fill missing values with 0
     new_user_ratings = new_user_ratings.fillna(0)
     rec_movies_real, rec_ratings, rec_movies = predict_movies_for_new_user(new_user_ratings,svd_model, movie_index,matrix_reduced,ratings_matrix,movie_details_df)
-    # round rec_ratings to 2 decimal places
-    rec_ratings = [round(rating, 2) for rating in rec_ratings]
+    # round rec_ratings to 2 decimal places make sure 2 decimal places
+    rec_ratings = [round(rating, 1) for rating in rec_ratings]
     for i in range(len(rec_movies_real)):
         print(f"{rec_movies_real[i]}: {rec_ratings[i]}")
     print('Time taken: ', time.time()-t)
@@ -285,6 +299,9 @@ def main(username):
     rec_movies_real = [x for _, x in sorted(zip(rec_ratings, rec_movies_real), reverse=True)]
     rec_movies = [x for _, x in sorted(zip(rec_ratings, rec_movies), reverse=True)]
     rec_ratings = sorted(rec_ratings, reverse=True)
+    for i in range(len(rec_movies_real)):
+        print(f"{rec_movies_real[i]}: {rec_ratings[i]}")
+    
     return rec_movies_real[0:12], rec_ratings[0:12], rec_movies[0:12]
 
 if __name__ == "__main__":

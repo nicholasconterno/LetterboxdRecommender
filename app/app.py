@@ -5,7 +5,11 @@ from app_utils import main  # Ensure the main function is correctly imported
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
+
 def index():
+    '''
+    Main function to render the index.html template and display the movie recommendations.
+    '''
     movies_posters = []  # Initialize empty list for movies and posters
     error = None  # Initialize no error
 
@@ -26,4 +30,4 @@ def index():
     return render_template('index.html', movies_posters=movies_posters, error=error)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host = '0.0.0.0',debug=True, port=5051)
